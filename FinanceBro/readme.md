@@ -21,3 +21,13 @@ Personal Project for Personal Finance Management
     ```bash
     python main.py
 
+## Testing
+
+    >> pip install pytest
+    >> pytest
+
+It will detect the files and tests automatically, execute them, and report the results back to you.
+
+
+
+
