@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter
 from fastapi import FastAPI, HTTPException, Depends, status
 from dependencies import get_db
+from src.database.schema.api_response import ApiResponse
 from src.database.schema.user import UserResponse, UserRequest
 from src.utility.logging_util import LoggerSetup
 from src.database.models.user import User as model_user
@@ -22,7 +23,7 @@ router = APIRouter(
 # db dependency
 db_dependency = Annotated[Session, Depends(get_db)]
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=ApiResponse[UserResponse])
 async def register_user(user: UserRequest, db: Session = Depends(get_db)):
     user_id = str(uuid4())
     while db.query(model_user).filter(model_user.id == user_id).first():
@@ -57,20 +58,25 @@ async def register_user(user: UserRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(new_user)
         logger.info(f"User {new_user.email} registered successfully.")
+        return ApiResponse(
+            status_code=status.HTTP_201_CREATED,
+            message="User registered successfully",
+            data=  UserResponse(
+                id=new_user.id,
+                first_name=new_user.first_name,
+                last_name=new_user.last_name,
+                email=new_user.email,
+                is_active=new_user.is_active,
+                last_login=str(new_user.last_login),
+                user_role=new_user.user_role,
+                created_at=str(new_user.created_at)
+            )
+        )
     except Exception as e:
         logger.error(f"Error registering user: {e}")
         db.rollback()
-        raise HTTPException(status_code=500, detail="Internal server error")
-    
-    return UserResponse(
-        id=new_user.id,
-        first_name=new_user.first_name,
-        last_name=new_user.last_name,
-        email=new_user.email,
-        is_active=new_user.is_active,
-        last_login=str(new_user.last_login),
-        user_role=new_user.user_role,
-        created_at=str(new_user.created_at)
-    )
-
+        return ApiResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message="Internal server error"
+        )
     
