@@ -1,8 +1,8 @@
-# finance_bro_env fodler -- gitignore
-finance_bro_env/
-
 # exclude .exe files
 *.exe
 
 # exclude __pycache__ folder
 __pycache__/
+
+# remove virtual environment
+finance_bro_env/
