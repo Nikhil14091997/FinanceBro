@@ -1,5 +1,5 @@
 # finance_bro_env fodler -- gitignore
-finance_bro_env/Lib/
+finance_bro_env/
 
 # exclude .exe files
 *.exe
