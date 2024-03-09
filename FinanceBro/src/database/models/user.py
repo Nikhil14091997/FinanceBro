@@ -1,6 +1,10 @@
+'''
+@Author: Nikhil Kumar
+@Desc: ORM for the user table
+'''
 from datetime import datetime
 from sqlalchemy import VARCHAR, Boolean, Column, DateTime, String
-from database import Base
+from src.database.connection_handler import Base
 
 class User(Base):
     __tablename__ = "users"
