@@ -14,8 +14,34 @@ logger_setup = LoggerSetup(logger_name="JWTUtil")
 logger_setup.add_formatter()
 logger = logger_setup.logger
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
+logger.info(f"OAuth2PasswordBearer:{oauth2_scheme}")
 
+SECRET_KEY = ConfigHandler().get_jwt_config()['secret_key']
+ALGORITHM = ConfigHandler().get_jwt_config()['algorithm']
+
+logger.info(f"SECRET_KEY: {SECRET_KEY}")
+logger.info(f"ALGORITHM: {ALGORITHM}")
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        try:
+            logger.info(f"Token: {token}")
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            email: str = payload.get("sub")
+            logger.info(f"Email: {email}")
+            if email is None:
+                raise credentials_exception
+            user = db.query(model_user).filter(model_user.email == email).first()
+            if user is None:
+                raise credentials_exception
+            return user
+        except JWTError:
+            raise credentials_exception
+        
 class TokenHandler:
     def __init__(self):
         self.config_handler = ConfigHandler()
@@ -41,24 +67,6 @@ class TokenHandler:
             if user_id is None:
                 raise credentials_exception
             return user_id
-        except JWTError:
-            raise credentials_exception
-    
-    async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        try:
-            payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            email: str = payload.get("sub")
-            if email is None:
-                raise credentials_exception
-            user = db.query(model_user).filter(model_user.email == email).first()
-            if user is None:
-                raise credentials_exception
-            return user
         except JWTError:
             raise credentials_exception
     

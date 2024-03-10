@@ -11,7 +11,7 @@ from src.database.schema.user import UserResponse, UserRequest
 from src.utility.logging_util import LoggerSetup
 from src.utility.security import get_password_hash, verify_password
 from src.database.models.user import User as model_user
-from src.utility.jwt_util import TokenHandler
+from src.utility.jwt_util import TokenHandler, get_current_user
 
 logger_setup = LoggerSetup(logger_name="ConnectionHandler")
 logger_setup.add_formatter()
@@ -114,4 +114,31 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
             "token_type": "bearer"
         }
     )
-    
+
+
+@router.get("/me", response_model=ApiResponse[UserResponse])
+async def read_users_me(current_user: model_user = Depends(get_current_user)):
+    try:
+        user_data = UserResponse(
+            id=current_user.id,
+            first_name=current_user.first_name,
+            last_name=current_user.last_name,
+            email=current_user.email,
+            is_active=current_user.is_active,
+            last_login=current_user.last_login,
+            user_role=current_user.user_role,
+            created_at=current_user.created_at
+        )
+        return ApiResponse(
+            status_code=status.HTTP_200_OK,
+            message="User details retrieved successfully",
+            data=user_data
+        )
+    except Exception as e:
+        # Log the error for debugging
+        logger.error(f"Error retrieving user details: {e}")
+        # Return an error response
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )

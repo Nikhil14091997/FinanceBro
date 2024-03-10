@@ -26,6 +26,6 @@ class UserResponse(BaseModel):
     last_name: str
     email: str
     is_active: bool
-    last_login: str
+    last_login: datetime
     user_role: str
-    created_at: str
+    created_at: datetime
