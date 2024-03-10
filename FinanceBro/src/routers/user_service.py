@@ -1,18 +1,23 @@
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi import APIRouter
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status
 from dependencies import get_db
 from src.database.schema.api_response import ApiResponse
 from src.database.schema.user import UserResponse, UserRequest
 from src.utility.logging_util import LoggerSetup
+from src.utility.security import get_password_hash, verify_password
 from src.database.models.user import User as model_user
+from src.utility.jwt_util import TokenHandler
 
 logger_setup = LoggerSetup(logger_name="ConnectionHandler")
 logger_setup.add_formatter()
 logger = logger_setup.logger
+
+token_handler = TokenHandler()
 
 router = APIRouter(
     prefix="/user",
@@ -50,7 +55,7 @@ async def register_user(user: UserRequest, db: Session = Depends(get_db)):
         first_name=user.first_name,
         last_name=user.last_name,
         email=user.email,
-        hashed_password=user.password,
+        hashed_password= get_password_hash(user.password),
         date_of_birth=date_of_birth,
         is_active=is_active,
         last_login=created_at,
@@ -86,4 +91,27 @@ async def register_user(user: UserRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message="Internal server error"
         )
+
+@router.post("/login", response_model=ApiResponse)
+async def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+   
+    user = db.query(model_user).filter(model_user.email == form_data.username).first()
+    if not user or not verify_password(plain_password=form_data.password, hashed_password=user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=token_handler.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = token_handler.create_access_token(
+        data={"sub": user.email, "user_role": user.user_role}, expires_delta=access_token_expires
+    )
+    return ApiResponse(
+        status_code=status.HTTP_200_OK,
+        message="User logged in successfully",
+        data={
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+    )
     
