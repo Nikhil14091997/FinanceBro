@@ -25,6 +25,13 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=ApiResponse[UserResponse])
 async def register_user(user: UserRequest, db: Session = Depends(get_db)):
+
+    # check if user already exists
+    existing_user = db.query(model_user).filter(model_user.email == user.email).first()
+    if existing_user:
+        logger.warning(f"User {user.email} already exists.")
+        raise HTTPException(status_code=400, detail="User already exists.")
+    
     user_id = str(uuid4())
     while db.query(model_user).filter(model_user.id == user_id).first():
         user_id = str(uuid4())
