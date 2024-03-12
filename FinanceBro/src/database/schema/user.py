@@ -29,3 +29,7 @@ class UserResponse(BaseModel):
     last_login: datetime
     user_role: str
     created_at: datetime
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str

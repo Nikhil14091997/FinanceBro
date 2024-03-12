@@ -2,7 +2,6 @@ from typing import Annotated
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer
 from dependencies import get_db
 from src.routers import user_service
 from src.database.connection_handler import engine, Base

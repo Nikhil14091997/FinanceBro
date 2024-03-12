@@ -11,7 +11,9 @@
 
     "jwt": {
         "secret_key": "889adef479b56a19d050db76fd437756d56d427f842d5a70815d7667fbff94bc",
+        "refresh_secret_key": "129sdef47ab56a19d050db76fd437756d56d427f842d5a70815d766efbff94bc",
         "algorithm": "HS256",
-        "access_token_expire_minutes": 300
+        "access_token_expire_minutes": 300,
+        "refresh_token_expire_minutes": 10080
     }
 }
