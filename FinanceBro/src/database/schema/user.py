@@ -33,3 +33,9 @@ class UserResponse(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+class ChangePasswordRequest(BaseModel):
+    email: str
+    old_password: str
+    new_password: str
+    confirm_password: str
