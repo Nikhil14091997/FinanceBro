@@ -32,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
+
 logger.info("Application started successfully. ✓")
 
 @app.get("/")

@@ -24,5 +24,8 @@ class ConfigHandler:
 
     def get_database_config(self):
         return self.config['database']
+    
+    def get_jwt_config(self):
+        return self.config['jwt']
 
 
