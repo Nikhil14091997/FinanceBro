@@ -13,6 +13,6 @@ src/utility/security.py
 src/utility/configs/__init__.py
 src/utility/configs/config_handler.py
 tests/__init__.py
-tests/main.py
+tests/test_main.py
 tests/routers/__init__.py
-tests/routers/user.py
+tests/routers/test_user.py
