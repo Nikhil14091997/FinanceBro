@@ -9,10 +9,16 @@ Personal Project for Personal Finance Management
    ```bash
    git clone https://github.com/Nikhil14091997/FinanceBro.git
 
+3. Create and Activate Environment:
+
+    ```bash
+    python -m venv finance_bro_env
+    source activate finannce_bro_env/bin/activate
+
 2. Install requirements:
 
     ```bash
-    ansans
+    pip install -r requirements.txt
 
 3. Absolute import
     ```bash

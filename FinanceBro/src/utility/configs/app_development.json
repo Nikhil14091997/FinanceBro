@@ -1,7 +1,7 @@
 {
     "database": {
         "username": "root",
-        "password": "Sanofi_122021",
+        "password": "agave1708",
         "database_name": "financebrodb",
         "host": "localhost",
         "port": "3306",
