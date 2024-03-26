@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+addopts = ["-sv"]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore:The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.:DeprecationWarning"
+]

@@ -26,6 +26,16 @@ class UserResponse(BaseModel):
     last_name: str
     email: str
     is_active: bool
-    last_login: str
+    last_login: datetime
     user_role: str
-    created_at: str
+    created_at: datetime
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class ChangePasswordRequest(BaseModel):
+    email: str
+    old_password: str
+    new_password: str
+    confirm_password: str
